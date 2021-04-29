@@ -20,7 +20,7 @@ namespace USB_HID_Test
         [DllImport("hid.dll")]
         static internal extern bool HidD_SetFeature(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
-        [DllImport("hid.dll")]
+        [DllImport("hid.dll", SetLastError = true)]
         static internal extern bool HidD_GetFeature(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
         /// <summary>
@@ -93,6 +93,10 @@ namespace USB_HID_Test
         /// <returns>HidD_GetPreparsedData returns TRUE if it succeeds; otherwise, it returns FALSE.</returns>
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_GetPreparsedData(IntPtr hidDeviceObject, out IntPtr PreparsedData);
+
+
+        [DllImport("hid.dll")]
+        static internal extern bool HidD_GetInputReport(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_FreePreparsedData(IntPtr PreparsedData);

@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace USB_HID_Test
 {
-    public class Equipment
+    public class HidDeviceSimple
     {
         #region 常用
         readonly HidDeviceBase hid = new();
-
 
         struct ConnectStatusStruct
         {
