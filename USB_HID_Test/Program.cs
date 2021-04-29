@@ -21,8 +21,9 @@ namespace USB_HID_Test
                   
                     bool isSend = equipment.SendBytes(bytes);
                     bool isReceive = equipment.ReceiveBytes(bytes);
-                    Console.WriteLine($"接收结果：{isReceive}，发送内容{str}");
+                   
                     Console.WriteLine($"发送结果：{isSend},发送的内容：{str}");
+                    Console.WriteLine($"接收结果：{isReceive}，接收的内容{str}");
                     Console.WriteLine("================================");
                 }
                 else

@@ -146,7 +146,7 @@ namespace USB_HID_Test
         {
             byte[] sendtemp = new byte[byData.Length + 1];
             sendtemp[0] = (byte)byData.Length;
-            Array.Copy(byData, 0, sendtemp, 1, byData.Length);
+            //Array.Copy(byData, 0, sendtemp, 1, byData.Length);
             HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(0, sendtemp));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {

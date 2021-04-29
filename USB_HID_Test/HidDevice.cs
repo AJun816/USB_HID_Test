@@ -182,9 +182,7 @@ namespace USB_HID_Test
 
                     for (int i = 0; i < maxBufferLength; i++)
                         buffer[i + 1] = r.reportBuff[i];
-     
                     bool isSetFeature = HidD_SetFeature(device, buffer, OutputReportLength);
-                
                     if (isSetFeature) return HidDeviceData.HID_RETURN.SUCCESS;
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 }
@@ -216,11 +214,10 @@ namespace USB_HID_Test
 
                     for (int i = 0; i < maxBufferLength; i++)
                         buffer[i + 1] = r.reportBuff[i];
-                    bool isGetFeature = HidD_GetFeature(device, buffer, buffer.Length);
 
+                    bool isGetFeature = HidD_GetFeature(device, buffer, buffer.Length);
                     if (isGetFeature)
                     {                       
-                        //Array.Copy(r.reportBuff, 0, buffer, 1, r.reportBuff.Length);
                         var str = BitConverter.ToString(buffer, 0).Replace("-", string.Empty).ToLower();
                         Console.WriteLine(str);
                         return HidDeviceData.HID_RETURN.SUCCESS;
