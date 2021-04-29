@@ -23,13 +23,13 @@ namespace USB_HID_Test
             public string message;
         }
 
-        public struct HidDevice
+        public struct HidDeviceInfo
         {
             public UInt16 vID;
             public UInt16 pID;
             public string serial;
         }
-        HidDevice lowHidDevice = new HidDevice();
+        HidDeviceInfo lowHidDevice = new HidDeviceInfo();
 
         public delegate void DelegateDataReceived(object sender, byte[] data);
         public DelegateDataReceived DataReceived;
@@ -66,7 +66,7 @@ namespace USB_HID_Test
             if (null != DataReceived) DataReceived(this, buf);
         }
 
-        public void AutoConnect(HidDevice hidDevice)
+        public void AutoConnect(HidDeviceInfo hidDevice)
         {
             lowHidDevice = hidDevice;
             ContinueConnectFlag = true;
@@ -93,7 +93,7 @@ namespace USB_HID_Test
             Dispose();
         }
 
-        public bool Connect(HidDevice hidDevice)
+        public bool Connect(HidDeviceInfo hidDevice)
         {
             ReusltString result = new ReusltString();
 

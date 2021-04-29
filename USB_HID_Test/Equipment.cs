@@ -34,7 +34,7 @@ namespace USB_HID_Test
             hid.StatusConnected = StatusConnected;
             hid.DataReceived = DataReceived;
 
-            HIDInterface.HidDevice hidDevice = new HIDInterface.HidDevice();
+            HIDInterface.HidDeviceInfo hidDevice = new HIDInterface.HidDeviceInfo();
             hidDevice.vID = 0x0951;
             hidDevice.pID = 0x16E5;
             hidDevice.serial = "";
