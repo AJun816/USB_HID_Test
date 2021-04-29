@@ -97,9 +97,9 @@ namespace USB_HID_Test
         {
             ReusltString result = new ReusltString();
 
-            NativeMethods.HID_RETURN hdrtn = device.OpenDevice(hidDevice.vID, hidDevice.pID, hidDevice.serial);
+            HidDeviceData.HID_RETURN hdrtn = device.OpenDevice(hidDevice.vID, hidDevice.pID, hidDevice.serial);
 
-            if (hdrtn == NativeMethods.HID_RETURN.SUCCESS)
+            if (hdrtn == HidDeviceData.HID_RETURN.SUCCESS)
             {
 
                 bConnected = true;
@@ -133,9 +133,9 @@ namespace USB_HID_Test
             Array.Copy(byData, 0, sendtemp, 1, byData.Length);
 
             // Hid.HID_RETURN hdrtn = device.Write(new report(0, sendtemp));
-            NativeMethods.HID_RETURN hdrtn = device.SetFeature(new Report(0, sendtemp));
+            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new Report(0, sendtemp));
 
-            if (hdrtn != NativeMethods.HID_RETURN.SUCCESS)
+            if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;
             }
@@ -147,8 +147,8 @@ namespace USB_HID_Test
             byte[] sendtemp = new byte[byData.Length + 1];
             sendtemp[0] = (byte)byData.Length;
             Array.Copy(byData, 0, sendtemp, 1, byData.Length);
-            NativeMethods.HID_RETURN hdrtn = device.GetFeature(new Report(0, sendtemp));
-            if (hdrtn != NativeMethods.HID_RETURN.SUCCESS)
+            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new Report(0, sendtemp));
+            if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;
             }
