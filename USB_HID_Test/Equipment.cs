@@ -9,16 +9,16 @@ namespace USB_HID_Test
     public class Equipment
     {
         #region 常用
-        HidDeviceBase hid = new HidDeviceBase();
+        readonly HidDeviceBase hid = new();
 
 
-        struct connectStatusStruct
+        struct ConnectStatusStruct
         {
             public bool preStatus;
             public bool curStatus;
         }
 
-        connectStatusStruct connectStatus = new connectStatusStruct();
+        ConnectStatusStruct connectStatus = new();
 
         //推送连接状态信息
         public delegate void isConnectedDelegate(bool isConnected);
@@ -35,10 +35,12 @@ namespace USB_HID_Test
             hid.StatusConnected = StatusConnected;
             hid.DataReceived = DataReceiveds;
 
-            HidDeviceBase.HidDeviceInfo hidDevice = new HidDeviceBase.HidDeviceInfo();
-            hidDevice.vID = 0x0951;
-            hidDevice.pID = 0x16E5;
-            hidDevice.serial = "";
+            HidDeviceBase.HidDeviceInfo hidDevice = new()
+            {
+                vID = 0x0951,
+                pID = 0x16E5,
+                serial = ""
+            };
             hid.AutoConnect(hidDevice);
         }
 
@@ -64,8 +66,7 @@ namespace USB_HID_Test
         //接受到数据
         public void DataReceiveds(object sender, byte[] e)
         {
-            if (pushReceiveData != null)
-                pushReceiveData(e);
+            pushReceiveData?.Invoke(e);
         }
 
         //状态改变接收

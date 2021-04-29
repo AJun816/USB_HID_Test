@@ -112,7 +112,7 @@ namespace USB_HID_Test
         /// <param name="flagsAndAttributes">File attributes and flags for the file</param>
         /// <param name="templateFile">Ignored</param>
         /// <returns>An open handle to the specified file indicates success</returns>
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static internal extern IntPtr CreateFile(string fileName, uint desiredAccess, uint shareMode, uint securityAttributes, uint creationDisposition, uint flagsAndAttributes, uint templateFile);
 
         /// <summary>

@@ -24,8 +24,6 @@ namespace USB_HID_Test
         int inputReportLength;//输入报告长度,包刮一个字节的报告ID   
         public int InputReportLength { get { return inputReportLength; } }
         IntPtr device = IntPtr.Zero;
-
-       
         /// <summary>
         /// 打开指定信息的设备
         /// </summary>
@@ -285,6 +283,7 @@ namespace USB_HID_Test
             SetupDiDestroyDeviceInfoList(hidInfoSet);
             //return deviceList.ToArray();
         }
+
 
     }
 }

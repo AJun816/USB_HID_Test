@@ -58,12 +58,12 @@ namespace USB_HID_Test
 
         protected virtual void RaiseEventConnectedState(bool isConnect)
         {
-            if (null != StatusConnected) StatusConnected(this, isConnect);
+            StatusConnected?.Invoke(this, isConnect);
         }
 
         protected virtual void RaiseEventDataReceived(byte[] buf)
         {
-            if (null != DataReceived) DataReceived(this, buf);
+            DataReceived?.Invoke(this, buf);
         }
 
         public void AutoConnect(HidDeviceInfo hidDevice)
@@ -232,7 +232,7 @@ namespace USB_HID_Test
         }
 
         Boolean ContinueConnectFlag = true;
-        private BackgroundWorker ReadWriteThread = new BackgroundWorker();
+        private readonly BackgroundWorker ReadWriteThread = new BackgroundWorker();
         private void ReadWriteThread_DoWork(object sender, DoWorkEventArgs e)
         {
             while (ContinueConnectFlag)
