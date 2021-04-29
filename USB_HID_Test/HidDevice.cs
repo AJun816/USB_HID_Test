@@ -24,6 +24,35 @@ namespace USB_HID_Test
         int inputReportLength;//输入报告长度,包刮一个字节的报告ID   
         public int InputReportLength { get { return inputReportLength; } }
         IntPtr device = IntPtr.Zero;
+
+        public enum DeviceMode
+        {
+            NonOverlapped = 0,
+            Overlapped = 1
+        }
+
+        [Flags]
+        public enum ShareMode
+        {
+            Exclusive = 0,
+            ShareRead = NativeMethods.FILE_SHARE_READ,
+            ShareWrite = NativeMethods.FILE_SHARE_WRITE
+        }
+
+        private static IntPtr OpenDeviceIO(string devicePath, DeviceMode deviceMode, uint deviceAccess, ShareMode shareMode)
+        {
+            var security = new NativeMethods.SECURITY_ATTRIBUTES();
+            var flags = 0;
+
+            if (deviceMode == DeviceMode.Overlapped) flags = NativeMethods.FILE_FLAG_OVERLAPPED;
+
+            security.lpSecurityDescriptor = IntPtr.Zero;
+            security.bInheritHandle = true;
+            security.nLength = Marshal.SizeOf(security);
+            return NativeMethods.CreateFile(devicePath, deviceAccess, (int)shareMode, ref security, NativeMethods.OPEN_EXISTING, flags, hTemplateFile: IntPtr.Zero);
+        }
+
+
         /// <summary>
         /// 打开指定信息的设备
         /// </summary>
@@ -43,44 +72,44 @@ namespace USB_HID_Test
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 for (int i = 0; i < deviceList.Count; i++)
                 {
-                
-                    device =NativeMethods.CreateFile(deviceList[i],
-                                                DESIREDACCESS.GENERIC_READ | DESIREDACCESS.GENERIC_WRITE,
-                                                0,
-                                                0,
-                                                CREATIONDISPOSITION.OPEN_EXISTING,
-                                                FLAGSANDATTRIBUTES.FILE_FLAG_OVERLAPPED,
-                                                0);
-                    if (device != INVALID_HANDLE_VALUE)
-                    {
-                        HIDD_ATTRIBUTES attributes;
-                        IntPtr serialBuff = Marshal.AllocHGlobal(512);
-                        HidD_GetAttributes(device, out attributes);
-                        HidD_GetSerialNumberString(device, serialBuff, 512);
-                        string deviceStr = Marshal.PtrToStringAuto(serialBuff);
-                        Marshal.FreeHGlobal(serialBuff);
-                        if (attributes.VendorID == vID && attributes.ProductID == pID && deviceStr.Contains(serial))
-                        {
-                            IntPtr preparseData;
-                            HIDP_CAPS caps;
-                            HidD_GetPreparsedData(device, out preparseData);
-                            HidP_GetCaps(preparseData, out caps);
-                            HidD_FreePreparsedData(preparseData);
-                            outputReportLength = caps.OutputReportByteLength;
-                            inputReportLength = caps.InputReportByteLength;
-                            //inputReportLength = 1;
-                            try
-                            {
-                                hidDevice = new FileStream(new SafeFileHandle(device, false), FileAccess.ReadWrite, inputReportLength, true);
-                            }
-                            catch (Exception ex) { continue; }
-                            deviceOpened = true;
-                            BeginAsyncRead();
 
-                            hHubDevice = device;
-                            return HidDeviceData.HID_RETURN.SUCCESS;
+                    if (deviceList[i].IndexOf("vid_0951&pid_16e4&mi_01&col05") > -1)
+                    {
+                       // device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
+                        device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_READ, ShareMode.ShareRead | ShareMode.ShareWrite);
+                        if (device != INVALID_HANDLE_VALUE)
+                        {
+                            HIDD_ATTRIBUTES attributes;
+                            IntPtr serialBuff = Marshal.AllocHGlobal(512);
+                            HidD_GetAttributes(device, out attributes);
+                            HidD_GetSerialNumberString(device, serialBuff, 512);
+                            string deviceStr = Marshal.PtrToStringAuto(serialBuff);
+                            Marshal.FreeHGlobal(serialBuff);
+                            if (attributes.VendorID == vID && attributes.ProductID == pID)
+                            {
+                                IntPtr preparseData;
+                                var capabilities = default(NativeMethods.HIDP_CAPS);
+                                HidD_GetPreparsedData(device, out preparseData);
+                                HidP_GetCaps(preparseData, ref capabilities);
+                                HidD_FreePreparsedData(preparseData);
+                                outputReportLength = capabilities.OutputReportByteLength;
+                                inputReportLength = capabilities.InputReportByteLength;
+                                //inputReportLength = 1;
+
+                                //try
+                                //{
+                                //    hidDevice = new FileStream(new SafeFileHandle(device, false), FileAccess.ReadWrite, inputReportLength, true);
+                                //}
+                                //catch (Exception ex) { continue; }
+                                //deviceOpened = true;
+                                //BeginAsyncRead();
+
+                                hHubDevice = device;
+                                return HidDeviceData.HID_RETURN.SUCCESS;
+                            }
                         }
                     }
+                   
                 }
                 return HidDeviceData.HID_RETURN.DEVICE_NOT_FIND;
             }
@@ -168,12 +197,13 @@ namespace USB_HID_Test
         /// <returns></returns>
         public HidDeviceData.HID_RETURN SetFeature(HidDeviceReport r)
         {
-            if (deviceOpened)
+            if (!deviceOpened)
             {
                 try
                 {
-                    byte[] buffer = new byte[outputReportLength];
+                    byte[] buffer = new byte[8];
                     buffer[0] = r.reportID;
+
                     int maxBufferLength = 0;
                     if (r.reportBuff.Length < outputReportLength - 1)
                         maxBufferLength = r.reportBuff.Length;
@@ -182,7 +212,10 @@ namespace USB_HID_Test
 
                     for (int i = 0; i < maxBufferLength; i++)
                         buffer[i + 1] = r.reportBuff[i];
-                    bool isSetFeature = HidD_SetFeature(device, buffer, OutputReportLength);
+
+                    byte[] bytes = new byte[] {0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                    //byte[] bytes = new byte[] { 0x00, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00 };
+                    bool isSetFeature = HidD_SetFeature(device, bytes, bytes.Length);
                     if (isSetFeature) return HidDeviceData.HID_RETURN.SUCCESS;
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 }
@@ -214,8 +247,8 @@ namespace USB_HID_Test
 
                     for (int i = 0; i < maxBufferLength; i++)
                         buffer[i + 1] = r.reportBuff[i];
-
-                    bool isGetFeature = HidD_GetFeature(device, buffer, buffer.Length);
+                    byte[] bytes = new byte[] { 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                    bool isGetFeature = HidD_GetFeature(device, bytes, bytes.Length);
                     if (isGetFeature)
                     {                       
                         var str = BitConverter.ToString(buffer, 0).Replace("-", string.Empty).ToLower();

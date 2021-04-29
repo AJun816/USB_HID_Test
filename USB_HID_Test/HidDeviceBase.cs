@@ -128,12 +128,9 @@ namespace USB_HID_Test
 
         public bool Send(byte[] byData)
         {
-            byte[] sendtemp = new byte[byData.Length + 1];
-            sendtemp[0] = (byte)byData.Length;
-            Array.Copy(byData, 0, sendtemp, 1, byData.Length);
 
             // Hid.HID_RETURN hdrtn = device.Write(new report(0, sendtemp));
-            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(0, sendtemp));
+            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(0, byData));
 
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
@@ -144,10 +141,8 @@ namespace USB_HID_Test
 
         public bool Receive(byte[] byData)
         {
-            byte[] sendtemp = new byte[byData.Length + 1];
-            sendtemp[0] = (byte)byData.Length;
             //Array.Copy(byData, 0, sendtemp, 1, byData.Length);
-            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(0, sendtemp));
+            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(0, byData));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;

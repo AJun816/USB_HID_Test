@@ -37,7 +37,7 @@ namespace USB_HID_Test
             HidDeviceBase.HidDeviceInfo hidDevice = new()
             {
                 vID = 0x0951,
-                pID = 0x16E5,
+                pID = 0x16E4,
                 serial = ""
             };
             hid.AutoConnect(hidDevice);
@@ -79,12 +79,12 @@ namespace USB_HID_Test
             if (connectStatus.curStatus)
             {
                 isConnectedFunc(true);
-                //ReportMessage(MessagesType.Message, "连接成功");
+                Console.WriteLine("连接成功");
             }
             else
             {
                 isConnectedFunc(false);
-                //ReportMessage(MessagesType.Error, "无法连接");
+                Console.WriteLine("无法连接");
             }
 
         }

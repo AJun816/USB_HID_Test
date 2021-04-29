@@ -9,6 +9,12 @@ namespace USB_HID_Test
 {
     public class NativeMethods
     {
+        internal const short FILE_SHARE_READ = 0x1;
+        internal const short FILE_SHARE_WRITE = 0x2;
+        internal const int FILE_FLAG_OVERLAPPED = 0x40000000;
+        internal const short OPEN_EXISTING = 3;
+        internal const uint GENERIC_READ = 0x80000000;
+        internal const uint GENERIC_WRITE = 0x40000000;
         #region Win32API
         /// <summary>
         /// The HidD_GetHidGuid routine returns the device interface GUID for HIDClass devices.
@@ -101,10 +107,11 @@ namespace USB_HID_Test
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_FreePreparsedData(IntPtr PreparsedData);
 
+        //[DllImport("hid.dll")]
+        //static internal extern uint HidP_GetCaps(IntPtr PreparsedData, out HIDP_CAPS Capabilities);
+
         [DllImport("hid.dll")]
-        static internal extern uint HidP_GetCaps(IntPtr PreparsedData, out HIDP_CAPS Capabilities);
-
-
+        static internal extern int HidP_GetCaps(IntPtr preparsedData, ref HIDP_CAPS capabilities);
         /// <summary>
         /// This function creates, opens, or truncates a file, COM port, device, service, or console. 
         /// </summary>
@@ -116,8 +123,19 @@ namespace USB_HID_Test
         /// <param name="flagsAndAttributes">File attributes and flags for the file</param>
         /// <param name="templateFile">Ignored</param>
         /// <returns>An open handle to the specified file indicates success</returns>
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static internal extern IntPtr CreateFile(string fileName, uint desiredAccess, uint shareMode, uint securityAttributes, uint creationDisposition, uint flagsAndAttributes, uint templateFile);
+        //[DllImport("kernel32.dll", SetLastError = true)]
+        //static internal extern IntPtr CreateFile(string fileName, uint desiredAccess, uint shareMode, uint securityAttributes, uint creationDisposition, uint flagsAndAttributes, uint templateFile);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static internal extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess, int dwShareMode, ref SECURITY_ATTRIBUTES lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public bool bInheritHandle;
+        }
 
         /// <summary>
         /// This function closes an open object handle.
