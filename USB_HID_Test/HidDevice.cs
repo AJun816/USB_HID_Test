@@ -11,7 +11,7 @@ using static USB_HID_Test.NativeMethods;
 namespace USB_HID_Test
 {
  
-    public class HidDevices : object
+    public class HidDevice : object
     {
         private IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
         private const int MAX_USB_DEVICES = 64;
@@ -24,6 +24,8 @@ namespace USB_HID_Test
         int inputReportLength;//输入报告长度,包刮一个字节的报告ID   
         public int InputReportLength { get { return inputReportLength; } }
         IntPtr device = IntPtr.Zero;
+
+       
         /// <summary>
         /// 打开指定信息的设备
         /// </summary>
@@ -122,7 +124,7 @@ namespace USB_HID_Test
                 byte[] reportData = new byte[readBuff.Length - 1];
                 for (int i = 1; i < readBuff.Length; i++)
                     reportData[i - 1] = readBuff[i];
-                Report hid = new Report(readBuff[0], reportData);
+                HidDeviceReport hid = new HidDeviceReport(readBuff[0], reportData);
                 OnDataReceived(hid); //发出数据到达消息
                 if (!deviceOpened) return;
                 BeginAsyncRead();//启动下一次读操作
@@ -137,7 +139,7 @@ namespace USB_HID_Test
             }
         }
 
-        public delegate void DelegateDataReceived(object sender, Report e);
+        public delegate void DelegateDataReceived(object sender, HidDeviceReport e);
         //public event EventHandler<ConnectEventArg> StatusConnected;
 
         public DelegateDataReceived DataReceived;
@@ -145,8 +147,7 @@ namespace USB_HID_Test
         /// <summary>
         /// 事件:数据到达,处理此事件以接收输入数据
         /// </summary>
-
-        protected virtual void OnDataReceived(Report e)
+        protected virtual void OnDataReceived(HidDeviceReport e)
         {
             if (DataReceived != null) DataReceived(this, e);
         }
@@ -167,7 +168,7 @@ namespace USB_HID_Test
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public HidDeviceData.HID_RETURN SetFeature(Report r)
+        public HidDeviceData.HID_RETURN SetFeature(HidDeviceReport r)
         {
             if (deviceOpened)
             {
@@ -199,7 +200,7 @@ namespace USB_HID_Test
         }
 
 
-        public HidDeviceData.HID_RETURN GetFeature(Report r)
+        public HidDeviceData.HID_RETURN GetFeature(HidDeviceReport r)
         {
             if (deviceOpened)
             {
@@ -284,5 +285,6 @@ namespace USB_HID_Test
             SetupDiDestroyDeviceInfoList(hidInfoSet);
             //return deviceList.ToArray();
         }
+
     }
 }

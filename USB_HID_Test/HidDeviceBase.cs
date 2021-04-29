@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace USB_HID_Test
 {
-    public class HIDInterface : IDisposable
+    public class HidDeviceBase : IDisposable
     {
 
         public enum MessagesType
@@ -40,8 +40,8 @@ namespace USB_HID_Test
         public bool bConnected = false;
 
 
-        public HidDevices device = new HidDevices();
-        private static HIDInterface m_oInstance;
+        public HidDevice device = new HidDevice();
+        private static HidDeviceBase m_oInstance;
 
         public struct TagInfo
         {
@@ -49,7 +49,7 @@ namespace USB_HID_Test
             public string EPC;
         }
 
-        public HIDInterface()
+        public HidDeviceBase()
         {
             m_oInstance = this;
             device.DataReceived = HidDataReceived;
@@ -88,7 +88,7 @@ namespace USB_HID_Test
             }
         }
 
-        ~HIDInterface()
+        ~HidDeviceBase()
         {
             Dispose();
         }
@@ -133,7 +133,7 @@ namespace USB_HID_Test
             Array.Copy(byData, 0, sendtemp, 1, byData.Length);
 
             // Hid.HID_RETURN hdrtn = device.Write(new report(0, sendtemp));
-            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new Report(0, sendtemp));
+            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(0, sendtemp));
 
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
@@ -147,7 +147,7 @@ namespace USB_HID_Test
             byte[] sendtemp = new byte[byData.Length + 1];
             sendtemp[0] = (byte)byData.Length;
             Array.Copy(byData, 0, sendtemp, 1, byData.Length);
-            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new Report(0, sendtemp));
+            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(0, sendtemp));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;
@@ -192,7 +192,7 @@ namespace USB_HID_Test
 
         }
 
-        public void HidDataReceived(object sender, Report e)
+        public void HidDataReceived(object sender, HidDeviceReport e)
         {
 
             try

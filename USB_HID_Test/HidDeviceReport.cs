@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace USB_HID_Test
 {
-    public class Report : EventArgs
+    public class HidDeviceReport : EventArgs
     {
         public readonly byte reportID;
         public readonly byte[] reportBuff;
-        public Report(byte id, byte[] arrayBuff)
+        public HidDeviceReport(byte id, byte[] arrayBuff)
         {
             reportID = id;
             reportBuff = arrayBuff;

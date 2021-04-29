@@ -8,8 +8,9 @@ namespace USB_HID_Test
 {
     public class Equipment
     {
+        #region 常用
+        HidDeviceBase hid = new HidDeviceBase();
 
-        HIDInterface hid = new HIDInterface();
 
         struct connectStatusStruct
         {
@@ -32,9 +33,9 @@ namespace USB_HID_Test
         public void Initial()
         {
             hid.StatusConnected = StatusConnected;
-            hid.DataReceived = DataReceived;
+            hid.DataReceived = DataReceiveds;
 
-            HIDInterface.HidDeviceInfo hidDevice = new HIDInterface.HidDeviceInfo();
+            HidDeviceBase.HidDeviceInfo hidDevice = new HidDeviceBase.HidDeviceInfo();
             hidDevice.vID = 0x0951;
             hidDevice.pID = 0x16E5;
             hidDevice.serial = "";
@@ -61,12 +62,10 @@ namespace USB_HID_Test
         }
 
         //接受到数据
-        public void DataReceived(object sender, byte[] e)
+        public void DataReceiveds(object sender, byte[] e)
         {
             if (pushReceiveData != null)
                 pushReceiveData(e);
-
-
         }
 
         //状态改变接收
@@ -82,12 +81,13 @@ namespace USB_HID_Test
                 isConnectedFunc(true);
                 //ReportMessage(MessagesType.Message, "连接成功");
             }
-            else //disconnect
+            else
             {
                 isConnectedFunc(false);
                 //ReportMessage(MessagesType.Error, "无法连接");
             }
 
         }
+        #endregion
     }
 }
