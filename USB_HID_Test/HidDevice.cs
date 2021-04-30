@@ -127,41 +127,6 @@ namespace USB_HID_Test
                     }
 
                 }
-
-
-                //if (deviceList.Exists(d=>d.IndexOf(serial)>=1))
-                //{
-                //    var deviceNames = from d in deviceList
-                //                     where d.Contains(serial)
-                //                     select d.ToString();
-                //    string deviceName = deviceNames.FirstOrDefault();
-                //    device = OpenDeviceIO(deviceName, DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
-                //    if (device != INVALID_HANDLE_VALUE)
-                //    {
-                //        IntPtr serialBuff = Marshal.AllocHGlobal(512);
-                //        //06 填写HIDD_ATTRIBUTES结构的数据项，该结构包含设备的厂商ID、产品ID和产品序列号，比照这些数值确定该设备是否是查找的设备
-                //        HidD_GetAttributes(device, out HIDD_ATTRIBUTES attributes);
-                //        HidD_GetSerialNumberString(device, serialBuff, 512);
-                //        string deviceStr = Marshal.PtrToStringAuto(serialBuff);
-                //        Marshal.FreeHGlobal(serialBuff);
-                //        if (attributes.VendorID == vID && attributes.ProductID == pID)
-                //        {
-                //            IntPtr preparseData;
-                //            var capabilities = default(NativeMethods.HIDP_CAPS);
-                //            //07 请求获得与设备能力信息相关的缓冲区的代号
-                //            HidD_GetPreparsedData(device, out preparseData);
-                //            //08 获取HID能力值，通过能力值判断是否是需要寻找的设备
-                //            HidP_GetCaps(preparseData, ref capabilities);
-                //            HidD_FreePreparsedData(preparseData);
-                //            outputReportLength = capabilities.OutputReportByteLength;
-                //            inputReportLength = capabilities.InputReportByteLength;
-                //            featureReportByteLength = capabilities.FeatureReportByteLength;
-                //            deviceOpened = true;
-                //            hHubDevice = device;
-                //            return HidDeviceData.HID_RETURN.SUCCESS;
-                //        }
-                //    }
-                //}
                 return HidDeviceData.HID_RETURN.DEVICE_NOT_FIND;
             }
             else

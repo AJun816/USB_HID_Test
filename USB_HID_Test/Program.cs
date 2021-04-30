@@ -8,10 +8,9 @@ namespace USB_HID_Test
         static void Main(string[] args)
         {
             HidDeviceSimple hidDevice = new HidDeviceSimple();
-            //初始化自动连接
-            hidDevice.Initial(0x0951, 0x16E4, "vid_0951&pid_16e4&mi_01&col05");
 
-            //发送数据
+            hidDevice.Initial(0x0951, 0x16E4, "vid_0951&pid_16e4&mi_01&col05");
+        
             hidDevice.isConnectedFunc = new HidDeviceSimple.isConnectedDelegate(state =>
             {
                 if (state)

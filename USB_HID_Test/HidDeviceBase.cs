@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace USB_HID_Test
 {
-    public class HidDeviceBase : IDisposable
+    public class HidDeviceBase :IDisposable
     {
-
         public enum MessagesType
         {
             Message,
