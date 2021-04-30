@@ -7,12 +7,12 @@ namespace USB_HID_Test
     {
         static void Main(string[] args)
         {
-            HidDeviceSimple equipment = new HidDeviceSimple();
+            HidDeviceSimple hidDevice = new HidDeviceSimple();
             //初始化自动连接
-            equipment.Initial();
+            hidDevice.Initial(0x0951, 0x16E4, "vid_0951&pid_16e4&mi_01&col05");
 
             //发送数据
-            equipment.isConnectedFunc = new HidDeviceSimple.isConnectedDelegate(state =>
+            hidDevice.isConnectedFunc = new HidDeviceSimple.isConnectedDelegate(state =>
             {
                 if (state)
                 {
@@ -21,15 +21,13 @@ namespace USB_HID_Test
 
                     byte[] bytes = new byte[] { 0x07, 0x83, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };     
                     
-                    bool isSend = equipment.ReadFeatureData(bytes);
+                    bool isSend = hidDevice.ReadFeatureData(bytes);
                     Thread.Sleep(10);
-                    bool isReceive = equipment.WriteFeatureData(bytes);
+                    bool isReceive = hidDevice.WriteFeatureData(7,bytes);
 
                     string str = System.Text.Encoding.Default.GetString(bytes);
-
                     Console.WriteLine($"发送结果：{isSend},发送的内容：{str}");
                     Console.WriteLine($"接收结果：{isReceive}，接收的内容{str}");
-
                     Console.WriteLine("================================");
                 }
                 else

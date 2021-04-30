@@ -137,9 +137,8 @@ namespace USB_HID_Test
             return true;
         }
 
-        public bool WriteFeature(byte[] byData)
+        public bool WriteFeature(byte reportId, byte[] byData)
         {
-            //Array.Copy(byData, 0, sendtemp, 1, byData.Length);
             HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(7, byData));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
@@ -147,15 +146,6 @@ namespace USB_HID_Test
             }
             return true;
         }
-
-        //public bool send(string strdata)
-        //{
-        //    //获得报文的编码字节
-        //    //byte[] data = encoding.unicode.getbytes(strdata);
-        //    //return send(data);
-        //}
-
-
 
         public void DisConnect()
         {

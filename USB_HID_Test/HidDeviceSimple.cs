@@ -29,16 +29,16 @@ namespace USB_HID_Test
         public PushReceiveDataDele pushReceiveData;
 
         //第一步需要初始化，传入vid、pid，并开启自动连接
-        public void Initial()
+        public void Initial(UInt16 vID, UInt16 pID,string serial)
         {
             hid.StatusConnected = StatusConnected;
             hid.DataReceived = DataReceiveds;
 
             HidDeviceBase.HidDeviceInfo hidDevice = new()
             {
-                vID = 0x0951,
-                pID = 0x16E4,
-                serial = ""
+                vID = vID,
+                pID = pID,
+                serial = serial
             };
             hid.AutoConnect(hidDevice);
         }
@@ -55,9 +55,9 @@ namespace USB_HID_Test
             return hid.ReadFeature(data);
         }
 
-        public bool WriteFeatureData(byte[] data)
+        public bool WriteFeatureData(byte reportId, byte[] data)
         {
-            return hid.WriteFeature(data);
+            return hid.WriteFeature(reportId, data);
         }
 
         //接受到数据

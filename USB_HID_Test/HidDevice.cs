@@ -54,7 +54,28 @@ namespace USB_HID_Test
             return NativeMethods.CreateFile(devicePath, deviceAccess, (int)shareMode, ref security, NativeMethods.OPEN_EXISTING, flags, hTemplateFile: IntPtr.Zero);
         }
 
+        private bool FindDevice(string serial,ref string deviceName)
+        {
+            if (deviceOpened == false)
+            {
+                List<string> deviceList = new List<string>();
+                GetHidDeviceList(deviceList);
+                if (deviceList.Count == 0)
+                    return false;
 
+                if (deviceList.Exists(d => d.IndexOf(serial) >= 1))
+                {
+                    var deviceNames = from d in deviceList
+                                      where d.Contains(serial)
+                                      select d.ToString();
+                    deviceName = deviceNames.FirstOrDefault();
+                    return true;
+                }
+                return false;
+            }
+            else 
+                return false;
+        }
         /// <summary>
         /// 打开指定信息的设备
         /// </summary>
@@ -64,6 +85,8 @@ namespace USB_HID_Test
         /// <returns></returns>
         public HidDeviceData.HID_RETURN OpenDevice(UInt16 vID, UInt16 pID, string serial)
         {
+            
+
             if (deviceOpened == false)
             {
                 //连接的HID列表
@@ -73,42 +96,72 @@ namespace USB_HID_Test
 
                 if (deviceList.Count == 0)
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
-                for (int i = 0; i < deviceList.Count; i++)
+                string deviceName ="";
+                if (FindDevice(serial,ref deviceName))
                 {
-                    //找到指定的HID设备
-                    if (deviceList[i].IndexOf("vid_0951&pid_16e4&mi_01&col05") > -1)
-                    {    
-                        //05 打开HID设备获得设备句柄
-                        device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
-               
-                        if (device != INVALID_HANDLE_VALUE)
+                    device = OpenDeviceIO(deviceName, DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
+                    if (device != INVALID_HANDLE_VALUE)
+                    {
+                        IntPtr serialBuff = Marshal.AllocHGlobal(512);
+                        //06 填写HIDD_ATTRIBUTES结构的数据项，该结构包含设备的厂商ID、产品ID和产品序列号，比照这些数值确定该设备是否是查找的设备
+                        HidD_GetAttributes(device, out HIDD_ATTRIBUTES attributes);
+                        HidD_GetSerialNumberString(device, serialBuff, 512);
+                        string deviceStr = Marshal.PtrToStringAuto(serialBuff);
+                        Marshal.FreeHGlobal(serialBuff);
+                        if (attributes.VendorID == vID && attributes.ProductID == pID)
                         {
-                            IntPtr serialBuff = Marshal.AllocHGlobal(512);
-                            //06 填写HIDD_ATTRIBUTES结构的数据项，该结构包含设备的厂商ID、产品ID和产品序列号，比照这些数值确定该设备是否是查找的设备
-                            HidD_GetAttributes(device, out HIDD_ATTRIBUTES attributes);
-                            HidD_GetSerialNumberString(device, serialBuff, 512);
-                            string deviceStr = Marshal.PtrToStringAuto(serialBuff);
-                            Marshal.FreeHGlobal(serialBuff);
-                            if (attributes.VendorID == vID && attributes.ProductID == pID)
-                            {
-                                IntPtr preparseData;                              
-                                var capabilities = default(NativeMethods.HIDP_CAPS);
-                                //07 请求获得与设备能力信息相关的缓冲区的代号
-                                HidD_GetPreparsedData(device, out preparseData);
-                                //08 获取HID能力值，通过能力值判断是否是需要寻找的设备
-                                HidP_GetCaps(preparseData, ref capabilities);
-                                HidD_FreePreparsedData(preparseData);
-                                outputReportLength = capabilities.OutputReportByteLength;
-                                inputReportLength = capabilities.InputReportByteLength;
-                                featureReportByteLength = capabilities.FeatureReportByteLength;
-                                deviceOpened = true;
-                                hHubDevice = device;
-                                return HidDeviceData.HID_RETURN.SUCCESS;
-                            }
+                            IntPtr preparseData;
+                            var capabilities = default(NativeMethods.HIDP_CAPS);
+                            //07 请求获得与设备能力信息相关的缓冲区的代号
+                            HidD_GetPreparsedData(device, out preparseData);
+                            //08 获取HID能力值，通过能力值判断是否是需要寻找的设备
+                            HidP_GetCaps(preparseData, ref capabilities);
+                            HidD_FreePreparsedData(preparseData);
+                            outputReportLength = capabilities.OutputReportByteLength;
+                            inputReportLength = capabilities.InputReportByteLength;
+                            featureReportByteLength = capabilities.FeatureReportByteLength;
+                            deviceOpened = true;
+                            hHubDevice = device;
+                            return HidDeviceData.HID_RETURN.SUCCESS;
                         }
                     }
-                   
+
                 }
+
+
+                //if (deviceList.Exists(d=>d.IndexOf(serial)>=1))
+                //{
+                //    var deviceNames = from d in deviceList
+                //                     where d.Contains(serial)
+                //                     select d.ToString();
+                //    string deviceName = deviceNames.FirstOrDefault();
+                //    device = OpenDeviceIO(deviceName, DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
+                //    if (device != INVALID_HANDLE_VALUE)
+                //    {
+                //        IntPtr serialBuff = Marshal.AllocHGlobal(512);
+                //        //06 填写HIDD_ATTRIBUTES结构的数据项，该结构包含设备的厂商ID、产品ID和产品序列号，比照这些数值确定该设备是否是查找的设备
+                //        HidD_GetAttributes(device, out HIDD_ATTRIBUTES attributes);
+                //        HidD_GetSerialNumberString(device, serialBuff, 512);
+                //        string deviceStr = Marshal.PtrToStringAuto(serialBuff);
+                //        Marshal.FreeHGlobal(serialBuff);
+                //        if (attributes.VendorID == vID && attributes.ProductID == pID)
+                //        {
+                //            IntPtr preparseData;
+                //            var capabilities = default(NativeMethods.HIDP_CAPS);
+                //            //07 请求获得与设备能力信息相关的缓冲区的代号
+                //            HidD_GetPreparsedData(device, out preparseData);
+                //            //08 获取HID能力值，通过能力值判断是否是需要寻找的设备
+                //            HidP_GetCaps(preparseData, ref capabilities);
+                //            HidD_FreePreparsedData(preparseData);
+                //            outputReportLength = capabilities.OutputReportByteLength;
+                //            inputReportLength = capabilities.InputReportByteLength;
+                //            featureReportByteLength = capabilities.FeatureReportByteLength;
+                //            deviceOpened = true;
+                //            hHubDevice = device;
+                //            return HidDeviceData.HID_RETURN.SUCCESS;
+                //        }
+                //    }
+                //}
                 return HidDeviceData.HID_RETURN.DEVICE_NOT_FIND;
             }
             else
@@ -164,9 +217,7 @@ namespace USB_HID_Test
             }
         }
 
-        public delegate void DelegateDataReceived(object sender, HidDeviceReport e);
-        //public event EventHandler<ConnectEventArg> StatusConnected;
-
+        public delegate void DelegateDataReceived(object sender, HidDeviceReport e);       
         public DelegateDataReceived DataReceived;
 
         /// <summary>
@@ -236,7 +287,6 @@ namespace USB_HID_Test
                         Console.WriteLine(str);
                         return HidDeviceData.HID_RETURN.SUCCESS;
                     }
-
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 }
                 catch
@@ -293,7 +343,6 @@ namespace USB_HID_Test
                 }
             }
             SetupDiDestroyDeviceInfoList(hidInfoSet);
-            //return deviceList.ToArray();
         }
 
 

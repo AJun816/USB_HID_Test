@@ -17,9 +17,9 @@ namespace USB_HID_Test
         internal const uint GENERIC_WRITE = 0x40000000;
         #region Win32API
         /// <summary>
-        /// The HidD_GetHidGuid routine returns the device interface GUID for HIDClass devices.
+        /// HID D获取HID GUID例程返回HIDClass设备的设备接口GUID。
         /// </summary>
-        /// <param name="HidGuid">a caller-allocated GUID buffer that the routine uses to return the device interface GUID for HIDClass devices.</param>
+        /// <param name="HidGuid">调用者分配的GUID缓冲区，其用于返回HIDClass设备的设备界面GUID.</param>
         [DllImport("hid.dll")]
         static internal extern void HidD_GetHidGuid(ref Guid HidGuid);
 
@@ -30,32 +30,32 @@ namespace USB_HID_Test
         static internal extern bool HidD_GetFeature(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
         /// <summary>
-        /// The SetupDiGetClassDevs function returns a handle to a device information set that contains requested device information elements for a local machine. 
+        /// 设置DI GET类DEVS功能返回给包含本地计算机所请求的设备信息元素的设备信息集的句柄。 
         /// </summary>
-        /// <param name="ClassGuid">GUID for a device setup class or a device interface class. </param>
-        /// <param name="Enumerator">A pointer to a NULL-terminated string that supplies the name of a PnP enumerator or a PnP device instance identifier. </param>
-        /// <param name="HwndParent">A handle of the top-level window to be used for a user interface</param>
-        /// <param name="Flags">A variable  that specifies control options that filter the device information elements that are added to the device information set. </param>
-        /// <returns>a handle to a device information set </returns>
+        /// <param name="ClassGuid">GUID for Device Setup类或设备接口类。</param>
+        /// <param name="Enumerator">指向空端接终止字符串的指针，用于提供PN P枚举器的名称或PN P设备实例标识符。 </param>
+        /// <param name="HwndParent">用于用户界面的顶级窗口的句柄</param>
+        /// <param name="Flags">一个可变的变量，指定过滤添加到设备信息集的设备信息元素的控制选项。 </param>
+        /// <returns>设备信息集的句柄 </returns>
         [DllImport("setupapi.dll", SetLastError = true)]
         static internal extern IntPtr SetupDiGetClassDevs(ref Guid ClassGuid, uint Enumerator, IntPtr HwndParent, DIGCF Flags);
 
         /// <summary>
         /// Setup DI Destroy设备信息列表功能删除设备信息集并释放所有相关内存。
         /// </summary>
-        /// <param name="DeviceInfoSet">A handle to the device information set to delete.</param>
-        /// <returns>returns TRUE if it is successful. Otherwise, it returns FALSE </returns>
+        /// <param name="DeviceInfoSet">设备信息设置为删除的句柄。</param>
+        /// <returns>如果成功返回true。否则，它返回错误 </returns>
         [DllImport("setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         static internal extern Boolean SetupDiDestroyDeviceInfoList(IntPtr deviceInfoSet);
 
         /// <summary>
-        /// The SetupDiEnumDeviceInterfaces function enumerates the device interfaces that are contained in a device information set. 
+        /// Setup DI Enum设备接口功能枚举设备信息集中包含的设备接口。
         /// </summary>
-        /// <param name="deviceInfoSet">A pointer to a device information set that contains the device interfaces for which to return information</param>
-        /// <param name="deviceInfoData">A pointer to an SP_DEVINFO_DATA structure that specifies a device information element in DeviceInfoSet</param>
-        /// <param name="interfaceClassGuid">a GUID that specifies the device interface class for the requested interface</param>
-        /// <param name="memberIndex">A zero-based index into the list of interfaces in the device information set</param>
-        /// <param name="deviceInterfaceData">a caller-allocated buffer that contains a completed SP_DEVICE_INTERFACE_DATA structure that identifies an interface that meets the search parameters</param>
+        /// <param name="deviceInfoSet">指向设备信息集的指针，该设备包含用于返回信息的设备接口</param>
+        /// <param name="deviceInfoData">指向SP DevInfo数据结构的指针，该数据结构指定设备信息集中的设备信息元素</param>
+        /// <param name="interfaceClassGuid">指定所请求接口的设备接口类的GUID</param>
+        /// <param name="memberIndex">基于零索引到设备信息集中的接口列表中</param>
+        /// <param name="deviceInterfaceData">一个调用者分配的缓冲区，包含一个已完成的SP设备接口数据结构，其标识符合搜索参数的接口</param>
         /// <returns></returns>
         [DllImport("setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         static internal extern Boolean SetupDiEnumDeviceInterfaces(IntPtr deviceInfoSet, IntPtr deviceInfoData, ref Guid interfaceClassGuid, UInt32 memberIndex, ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData);
@@ -107,24 +107,9 @@ namespace USB_HID_Test
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_FreePreparsedData(IntPtr PreparsedData);
 
-        //[DllImport("hid.dll")]
-        //static internal extern uint HidP_GetCaps(IntPtr PreparsedData, out HIDP_CAPS Capabilities);
 
         [DllImport("hid.dll")]
         static internal extern int HidP_GetCaps(IntPtr preparsedData, ref HIDP_CAPS capabilities);
-        /// <summary>
-        /// This function creates, opens, or truncates a file, COM port, device, service, or console. 
-        /// </summary>
-        /// <param name="fileName">a null-terminated string that specifies the name of the object</param>
-        /// <param name="desiredAccess">Type of access to the object</param>
-        /// <param name="shareMode">Share mode for object</param>
-        /// <param name="securityAttributes">Ignored; set to NULL</param>
-        /// <param name="creationDisposition">Action to take on files that exist, and which action to take when files do not exist</param>
-        /// <param name="flagsAndAttributes">File attributes and flags for the file</param>
-        /// <param name="templateFile">Ignored</param>
-        /// <returns>An open handle to the specified file indicates success</returns>
-        //[DllImport("kernel32.dll", SetLastError = true)]
-        //static internal extern IntPtr CreateFile(string fileName, uint desiredAccess, uint shareMode, uint securityAttributes, uint creationDisposition, uint flagsAndAttributes, uint templateFile);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static internal extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess, int dwShareMode, ref SECURITY_ATTRIBUTES lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
@@ -138,15 +123,15 @@ namespace USB_HID_Test
         }
 
         /// <summary>
-        /// This function closes an open object handle.
+        /// 此函数关闭开放对象句柄。
         /// </summary>
-        /// <param name="hObject">Handle to an open object</param>
+        /// <param name="hObject">掌握开放对象</param>
         /// <returns></returns>
         [DllImport("kernel32.dll")]
         static internal extern int CloseHandle(IntPtr hObject);
 
         /// <summary>
-        /// This function reads data from a file, starting at the position indicated by the file pointer.
+        /// 此函数从文件中读取文件，从文件指针指示的位置开始。
         /// </summary>
         /// <param name="file">处理要读取的文件</param>
         /// <param name="buffer">指向从文件读取的数据的缓冲区 </param>
@@ -158,31 +143,31 @@ namespace USB_HID_Test
         static internal extern bool ReadFile(IntPtr file, byte[] buffer, uint numberOfBytesToRead, out uint numberOfBytesRead, IntPtr lpOverlapped);
 
         /// <summary>
-        ///  This function writes data to a file
+        ///  此功能将数据写入文件
         /// </summary>
-        /// <param name="file">Handle to the file to be written to</param>
-        /// <param name="buffer">Pointer to the buffer containing the data to write to the file</param>
-        /// <param name="numberOfBytesToWrite">Number of bytes to write to the file</param>
-        /// <param name="numberOfBytesWritten">Pointer to the number of bytes written by this function call</param>
-        /// <param name="lpOverlapped">Unsupported; set to NULL</param>
+        /// <param name="file">处理要写入的文件</param>
+        /// <param name="buffer">指向包含要写入文件的数据的缓冲区</param>
+        /// <param name="numberOfBytesToWrite">写入文件的字节数</param>
+        /// <param name="numberOfBytesWritten">指向此函数调用的字节数的指针</param>
+        /// <param name="lpOverlapped">不支持;设置为null.</param>
         /// <returns></returns>
         [DllImport("Kernel32.dll", SetLastError = true)]
         static internal extern bool WriteFile(IntPtr file, byte[] buffer, uint numberOfBytesToWrite, out uint numberOfBytesWritten, IntPtr lpOverlapped);
 
         /// <summary>
-        /// Registers the device or type of device for which a window will receive notifications
+        /// 注册设备或窗口将接收通知的设备类型或类型
         /// </summary>
-        /// <param name="recipient">A handle to the window or service that will receive device events for the devices specified in the NotificationFilter parameter</param>
-        /// <param name="notificationFilter">A pointer to a block of data that specifies the type of device for which notifications should be sent</param>
-        /// <param name="flags">A Flags that specify the handle type</param>
-        /// <returns>If the function succeeds, the return value is a device notification handle</returns>
+        /// <param name="recipient">窗口或服务的句柄将接收通知滤波器参数中指定的设备的设备事件</param>
+        /// <param name="notificationFilter">指向数据块的指针，该数据指定应发送通知的设备类型</param>
+        /// <param name="flags">指定句柄类型的标志</param>
+        /// <returns>如果函数成功，则返回值是设备通知句柄</returns>
         [DllImport("User32.dll", SetLastError = true)]
         static internal extern IntPtr RegisterDeviceNotification(IntPtr recipient, IntPtr notificationFilter, int flags);
 
         /// <summary>
-        /// Closes the specified device notification handle.
+        /// 关闭指定的设备通知句柄。
         /// </summary>
-        /// <param name="handle">Device notification handle returned by the RegisterDeviceNotification function</param>
+        /// <param name="handle">寄存器设备通知功能返回的设备通知句柄</param>
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         static internal extern bool UnregisterDeviceNotification(IntPtr handle);
@@ -277,7 +262,7 @@ namespace USB_HID_Test
             public const uint GENERIC_ALL = 0x10000000;
         }
         /// <summary>
-        /// Action to take on files that exist, and which action to take when files do not exist. 
+        /// 采取存在的文件，存在文件，并且在文件不存在时采取的操作。
         /// </summary>
         static internal class CREATIONDISPOSITION
         {
@@ -288,7 +273,7 @@ namespace USB_HID_Test
             public const uint TRUNCATE_EXISTING = 5;
         }
         /// <summary>
-        /// File attributes and flags for the file. 
+        /// 文件属性和文件的标志。
         /// </summary>
         static internal class FLAGSANDATTRIBUTES
         {
@@ -305,7 +290,7 @@ namespace USB_HID_Test
             public const uint FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000;
         }
         /// <summary>
-        /// Serves as a standard header for information related to a device event reported through the WM_DEVICECHANGE message.
+        /// 用作标准标题，用于与通过WM DeviceChange消息报告的设备事件相关的信息。
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct DEV_BROADCAST_HDR
@@ -315,7 +300,7 @@ namespace USB_HID_Test
             public int dbcc_reserved;
         }
         /// <summary>
-        /// Contains information about a class of devices
+        ///包含有关一类设备的信息
         /// </summary>
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         internal struct DEV_BROADCAST_DEVICEINTERFACE
