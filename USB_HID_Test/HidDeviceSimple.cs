@@ -50,16 +50,14 @@ namespace USB_HID_Test
         }
 
         //发送数据
-        public bool SendBytes(byte[] data)
+        public bool ReadFeatureData(byte[] data)
         {
-
-            return hid.Send(data);
-
+            return hid.ReadFeature(data);
         }
 
-        public bool ReceiveBytes(byte[] data)
+        public bool WriteFeatureData(byte[] data)
         {
-            return hid.Receive(data);
+            return hid.WriteFeature(data);
         }
 
         //接受到数据

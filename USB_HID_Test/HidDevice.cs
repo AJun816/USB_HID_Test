@@ -13,16 +13,18 @@ namespace USB_HID_Test
  
     public class HidDevice : object
     {
-        private IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+        private readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
         private const int MAX_USB_DEVICES = 64;
         private bool deviceOpened = false;
-        private FileStream hidDevice = null;
+        private readonly FileStream hidDevice = null;
         private IntPtr hHubDevice;
 
         int outputReportLength;//输出报告长度,包刮一个字节的报告ID
         public int OutputReportLength { get { return outputReportLength; } }
         int inputReportLength;//输入报告长度,包刮一个字节的报告ID   
         public int InputReportLength { get { return inputReportLength; } }
+        short featureReportByteLength;
+        public short FeatureReportByteLength { get { return featureReportByteLength; } }
         IntPtr device = IntPtr.Zero;
 
         public enum DeviceMode
@@ -64,46 +66,42 @@ namespace USB_HID_Test
         {
             if (deviceOpened == false)
             {
-                //获取连接的HID列表
+                //连接的HID列表
                 List<string> deviceList = new List<string>();
+                //获取连接的HID列表
                 GetHidDeviceList(deviceList);
 
                 if (deviceList.Count == 0)
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 for (int i = 0; i < deviceList.Count; i++)
                 {
-
+                    //找到指定的HID设备
                     if (deviceList[i].IndexOf("vid_0951&pid_16e4&mi_01&col05") > -1)
-                    {
-                       // device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
-                        device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_READ, ShareMode.ShareRead | ShareMode.ShareWrite);
+                    {    
+                        //05 打开HID设备获得设备句柄
+                        device = OpenDeviceIO(deviceList[i], DeviceMode.Overlapped, NativeMethods.GENERIC_WRITE, ShareMode.ShareRead | ShareMode.ShareWrite);
+               
                         if (device != INVALID_HANDLE_VALUE)
                         {
-                            HIDD_ATTRIBUTES attributes;
                             IntPtr serialBuff = Marshal.AllocHGlobal(512);
-                            HidD_GetAttributes(device, out attributes);
+                            //06 填写HIDD_ATTRIBUTES结构的数据项，该结构包含设备的厂商ID、产品ID和产品序列号，比照这些数值确定该设备是否是查找的设备
+                            HidD_GetAttributes(device, out HIDD_ATTRIBUTES attributes);
                             HidD_GetSerialNumberString(device, serialBuff, 512);
                             string deviceStr = Marshal.PtrToStringAuto(serialBuff);
                             Marshal.FreeHGlobal(serialBuff);
                             if (attributes.VendorID == vID && attributes.ProductID == pID)
                             {
-                                IntPtr preparseData;
+                                IntPtr preparseData;                              
                                 var capabilities = default(NativeMethods.HIDP_CAPS);
+                                //07 请求获得与设备能力信息相关的缓冲区的代号
                                 HidD_GetPreparsedData(device, out preparseData);
+                                //08 获取HID能力值，通过能力值判断是否是需要寻找的设备
                                 HidP_GetCaps(preparseData, ref capabilities);
                                 HidD_FreePreparsedData(preparseData);
                                 outputReportLength = capabilities.OutputReportByteLength;
                                 inputReportLength = capabilities.InputReportByteLength;
-                                //inputReportLength = 1;
-
-                                //try
-                                //{
-                                //    hidDevice = new FileStream(new SafeFileHandle(device, false), FileAccess.ReadWrite, inputReportLength, true);
-                                //}
-                                //catch (Exception ex) { continue; }
-                                //deviceOpened = true;
-                                //BeginAsyncRead();
-
+                                featureReportByteLength = capabilities.FeatureReportByteLength;
+                                deviceOpened = true;
                                 hHubDevice = device;
                                 return HidDeviceData.HID_RETURN.SUCCESS;
                             }
@@ -190,32 +188,23 @@ namespace USB_HID_Test
             if (DeviceRemoved != null) DeviceRemoved(this, e);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
+        private static byte[] CreateBuffer(int length)
+        {
+            byte[] buffer = null;
+            Array.Resize(ref buffer, length + 1);
+            return buffer;
+        }
+
         public HidDeviceData.HID_RETURN SetFeature(HidDeviceReport r)
         {
-            if (!deviceOpened)
+            if (deviceOpened)
             {
                 try
                 {
-                    byte[] buffer = new byte[8];
+                    byte[] buffer = CreateBuffer(FeatureReportByteLength-1);
                     buffer[0] = r.reportID;
-
-                    int maxBufferLength = 0;
-                    if (r.reportBuff.Length < outputReportLength - 1)
-                        maxBufferLength = r.reportBuff.Length;
-                    else
-                        maxBufferLength = outputReportLength - 1;
-
-                    for (int i = 0; i < maxBufferLength; i++)
-                        buffer[i + 1] = r.reportBuff[i];
-
-                    byte[] bytes = new byte[] {0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                    //byte[] bytes = new byte[] { 0x00, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00 };
-                    bool isSetFeature = HidD_SetFeature(device, bytes, bytes.Length);
+                    Array.Copy(r.reportBuff, 0, buffer, 0, r.reportBuff.Length);
+                    bool isSetFeature = HidD_SetFeature(device, buffer, buffer.Length);
                     if (isSetFeature) return HidDeviceData.HID_RETURN.SUCCESS;
                     return HidDeviceData.HID_RETURN.NO_DEVICE_CONECTED;
                 }
@@ -236,19 +225,11 @@ namespace USB_HID_Test
             if (deviceOpened)
             {
                 try
-                {
-                    byte[] buffer = new byte[outputReportLength];
+                {                   
+                    byte[] buffer = CreateBuffer(FeatureReportByteLength - 1);
                     buffer[0] = r.reportID;
-                    int maxBufferLength = 0;
-                    if (r.reportBuff.Length < outputReportLength - 1)
-                        maxBufferLength = r.reportBuff.Length;
-                    else
-                        maxBufferLength = outputReportLength - 1;
 
-                    for (int i = 0; i < maxBufferLength; i++)
-                        buffer[i + 1] = r.reportBuff[i];
-                    byte[] bytes = new byte[] { 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                    bool isGetFeature = HidD_GetFeature(device, bytes, bytes.Length);
+                    bool isGetFeature = HidD_GetFeature(device, buffer, buffer.Length);
                     if (isGetFeature)
                     {                       
                         var str = BitConverter.ToString(buffer, 0).Replace("-", string.Empty).ToLower();
@@ -280,9 +261,9 @@ namespace USB_HID_Test
             uint index = 0;
 
             deviceList.Clear();
-            // 取得hid设备全局id
+            //01 取得hid设备全局id
             HidD_GetHidGuid(ref hUSB);
-            //取得一个包含所有HID接口信息集合的句柄
+            //02 取得一个包含所有HID接口信息集合的句柄
             IntPtr hidInfoSet = SetupDiGetClassDevs(ref hUSB, 0, IntPtr.Zero, DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
             if (hidInfoSet != IntPtr.Zero)
             {
@@ -291,17 +272,18 @@ namespace USB_HID_Test
                 //查询集合中每一个接口
                 for (index = 0; index < MAX_USB_DEVICES; index++)
                 {
-                    //得到第index个接口信息
+                    //03 得到第index个接口信息，该结构用于识别一个HID设备接口
                     if (SetupDiEnumDeviceInterfaces(hidInfoSet, IntPtr.Zero, ref hUSB, index, ref interfaceInfo))
                     {
                         int buffsize = 0;
-                        // 取得接口详细信息:第一次读取错误,但可以取得信息缓冲区的大小
+                        //04 取得接口详细信息:第一次读取错误,但可以取得信息缓冲区的大小，获得一个指向该设备的路径名
                         SetupDiGetDeviceInterfaceDetail(hidInfoSet, ref interfaceInfo, IntPtr.Zero, buffsize, ref buffsize, null);
                         //构建接收缓冲
                         IntPtr pDetail = Marshal.AllocHGlobal(buffsize);
                         SP_DEVICE_INTERFACE_DETAIL_DATA detail = new SP_DEVICE_INTERFACE_DETAIL_DATA();
                         detail.cbSize = Marshal.SizeOf(typeof(SP_DEVICE_INTERFACE_DETAIL_DATA));
                         Marshal.StructureToPtr(detail, pDetail, false);
+         
                         if (SetupDiGetDeviceInterfaceDetail(hidInfoSet, ref interfaceInfo, pDetail, buffsize, ref buffsize, null))
                         {
                             deviceList.Add(Marshal.PtrToStringAuto((IntPtr)((int)pDetail + 4)));

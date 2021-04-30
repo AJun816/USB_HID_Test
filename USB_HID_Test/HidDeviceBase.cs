@@ -106,7 +106,7 @@ namespace USB_HID_Test
 
                 #region 消息通知
                 result.Result = true;
-                result.message = "Connect Success!";
+                result.message = "设备连接成功!";
                 RaiseEventConnectedState(result.Result);
                 #endregion
 
@@ -118,19 +118,17 @@ namespace USB_HID_Test
 
             #region 消息通知
             result.Result = false;
-            result.message = "Device Connect Error";
+            result.message = "设备连接错误";
             RaiseEventConnectedState(result.Result);
 
             #endregion
             return false;
         }
+    
 
-
-        public bool Send(byte[] byData)
+        public bool ReadFeature(byte[] byData)
         {
-
-            // Hid.HID_RETURN hdrtn = device.Write(new report(0, sendtemp));
-            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(0, byData));
+            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(7, byData));
 
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
@@ -139,10 +137,10 @@ namespace USB_HID_Test
             return true;
         }
 
-        public bool Receive(byte[] byData)
+        public bool WriteFeature(byte[] byData)
         {
             //Array.Copy(byData, 0, sendtemp, 1, byData.Length);
-            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(0, byData));
+            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(7, byData));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;
@@ -150,12 +148,12 @@ namespace USB_HID_Test
             return true;
         }
 
-        public bool Send(string strData)
-        {
-            //获得报文的编码字节
-            byte[] data = Encoding.Unicode.GetBytes(strData);
-            return Send(data);
-        }
+        //public bool send(string strdata)
+        //{
+        //    //获得报文的编码字节
+        //    //byte[] data = encoding.unicode.getbytes(strdata);
+        //    //return send(data);
+        //}
 
 
 

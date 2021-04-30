@@ -41,7 +41,7 @@ namespace USB_HID_Test
         static internal extern IntPtr SetupDiGetClassDevs(ref Guid ClassGuid, uint Enumerator, IntPtr HwndParent, DIGCF Flags);
 
         /// <summary>
-        /// The SetupDiDestroyDeviceInfoList function deletes a device information set and frees all associated memory.
+        /// Setup DI Destroy设备信息列表功能删除设备信息集并释放所有相关内存。
         /// </summary>
         /// <param name="DeviceInfoSet">A handle to the device information set to delete.</param>
         /// <returns>returns TRUE if it is successful. Otherwise, it returns FALSE </returns>
@@ -61,20 +61,20 @@ namespace USB_HID_Test
         static internal extern Boolean SetupDiEnumDeviceInterfaces(IntPtr deviceInfoSet, IntPtr deviceInfoData, ref Guid interfaceClassGuid, UInt32 memberIndex, ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData);
 
         /// <summary>
-        /// The SetupDiGetDeviceInterfaceDetail function returns details about a device interface.
+        /// Setup DI Get Device接口详细信息功能返回有关设备界面的详细信息。
         /// </summary>
-        /// <param name="deviceInfoSet">A pointer to the device information set that contains the interface for which to retrieve details</param>
-        /// <param name="deviceInterfaceData">A pointer to an SP_DEVICE_INTERFACE_DATA structure that specifies the interface in DeviceInfoSet for which to retrieve details</param>
-        /// <param name="deviceInterfaceDetailData">A pointer to an SP_DEVICE_INTERFACE_DETAIL_DATA structure to receive information about the specified interface</param>
-        /// <param name="deviceInterfaceDetailDataSize">The size of the DeviceInterfaceDetailData buffer</param>
-        /// <param name="requiredSize">A pointer to a variable that receives the required size of the DeviceInterfaceDetailData buffer</param>
-        /// <param name="deviceInfoData">A pointer buffer to receive information about the device that supports the requested interface</param>
+        /// <param name="deviceInfoSet">指向设备信息集的指针，该设备包含用于检索详细信息的接口</param>
+        /// <param name="deviceInterfaceData">指向SP设备接口数据结构的指针，该数据结构指定用于检索详细信息的设备信息集中的接口</param>
+        /// <param name="deviceInterfaceDetailData">指向SP设备接口详细数据结构的指针，以接收有关指定接口的信息</param>
+        /// <param name="deviceInterfaceDetailDataSize">设备接口细节数据缓冲区的大小</param>
+        /// <param name="requiredSize">指向变量的指针，该变量接收设备接口详细数据缓冲区所需的大小</param>
+        /// <param name="deviceInfoData">指针缓冲区，用于接收有关支持所请求界面的设备的信息</param>
         /// <returns></returns>
         [DllImport("setupapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static internal extern bool SetupDiGetDeviceInterfaceDetail(IntPtr deviceInfoSet, ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData, IntPtr deviceInterfaceDetailData, int deviceInterfaceDetailDataSize, ref int requiredSize, SP_DEVINFO_DATA deviceInfoData);
 
         /// <summary>
-        /// The HidD_GetAttributes routine returns the attributes of a specified top-level collection.
+        /// HID D Get属性例程返回指定的顶级集合的属性。
         /// </summary>
         /// <param name="HidDeviceObject">指定顶级集合的打开句柄</param>
         /// <param name="Attributes">调用者分配的HIDD属性结构，返回HID设备对象指定的集合的属性</param>
@@ -84,19 +84,19 @@ namespace USB_HID_Test
         /// <summary>
         ///HID D获取序列号字符串例程返回顶级集合的嵌入式字符串，该集合标识集合物理设备的序列号.
         /// </summary>
-        /// <param name="HidDeviceObject">Specifies an open handle to a top-level collection</param>
-        /// <param name="Buffer">a caller-allocated buffer that the routine uses to return the requested serial number string</param>
-        /// <param name="BufferLength">Specifies the length, in bytes, of a caller-allocated buffer provided at Buffer</param>
+        /// <param name="HidDeviceObject">指定顶级集合的打开句柄</param>
+        /// <param name="Buffer">呼叫者分配的缓冲区，其例程用于返回所请求的序列号字符串</param>
+        /// <param name="BufferLength">指定在缓冲区中提供的呼叫者分配缓冲区的长度（以字节为单位）</param>
         /// <returns></returns>
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_GetSerialNumberString(IntPtr hidDeviceObject, IntPtr buffer, int bufferLength);
 
         /// <summary>
-        /// The HidD_GetPreparsedData routine returns a top-level collection's preparsed data.
+        /// HID D获得准备的数据例程返回顶级集合的准备数据。
         /// </summary>
-        /// <param name="hidDeviceObject">Specifies an open handle to a top-level collection. </param>
-        /// <param name="PreparsedData">Pointer to the address of a routine-allocated buffer that contains a collection's preparsed data in a _HIDP_PREPARSED_DATA structure.</param>
-        /// <returns>HidD_GetPreparsedData returns TRUE if it succeeds; otherwise, it returns FALSE.</returns>
+        /// <param name="hidDeviceObject">指定顶级集合的打开句柄。 </param>
+        /// <param name="PreparsedData">指向一个例程分配缓冲区的地址，该缓冲区包含一个集合的HIDP准备数据结构中的准备数据。</ param>
+        /// <returns> HID D如果成功，则获得准备数据返回true;否则，它返回false</returns>
         [DllImport("hid.dll")]
         static internal extern Boolean HidD_GetPreparsedData(IntPtr hidDeviceObject, out IntPtr PreparsedData);
 
@@ -243,24 +243,28 @@ namespace USB_HID_Test
             public ushort VersionNumber;
         }
 
+        /// <summary>
+        /// HID能力值信息
+        /// </summary>
         internal struct HIDP_CAPS
         {
-            public ushort Usage;
-            public ushort UsagePage;
-            public ushort InputReportByteLength;
-            public ushort OutputReportByteLength;
+            internal short Usage;
+            internal short UsagePage;
+            internal short InputReportByteLength;
+            internal short OutputReportByteLength;
+            internal short FeatureReportByteLength;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 17)]
-            public ushort[] Reserved;
-            public ushort NumberLinkCollectionNodes;
-            public ushort NumberInputButtonCaps;
-            public ushort NumberInputValueCaps;
-            public ushort NumberInputDataIndices;
-            public ushort NumberOutputButtonCaps;
-            public ushort NumberOutputValueCaps;
-            public ushort NumberOutputDataIndices;
-            public ushort NumberFeatureButtonCaps;
-            public ushort NumberFeatureValueCaps;
-            public ushort NumberFeatureDataIndices;
+            internal short[] Reserved;
+            internal short NumberLinkCollectionNodes;
+            internal short NumberInputButtonCaps;
+            internal short NumberInputValueCaps;
+            internal short NumberInputDataIndices;
+            internal short NumberOutputButtonCaps;
+            internal short NumberOutputValueCaps;
+            internal short NumberOutputDataIndices;
+            internal short NumberFeatureButtonCaps;
+            internal short NumberFeatureValueCaps;
+            internal short NumberFeatureDataIndices;
         }
         /// <summary>
         /// Type of access to the object. 
