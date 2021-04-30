@@ -19,10 +19,7 @@ namespace USB_HID_Test
                     bool isSend = hidDevice.ReadFeatureData(bytes);
                     Thread.Sleep(10);
                     bool isReceive = hidDevice.WriteFeatureData(7,bytes);
-
-                    string str = System.Text.Encoding.Default.GetString(bytes);
-                    Console.WriteLine($"发送结果：{isSend},发送的内容：{str}");
-                    Console.WriteLine($"接收结果：{isReceive}，接收的内容{str}");
+                    Console.WriteLine($"发送结果：{isSend}\r\n接收结果：{isReceive}");
                 }
                 else
                 {
