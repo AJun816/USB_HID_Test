@@ -170,9 +170,9 @@ namespace USB_HID_Test
             return false;
         }
 
-        public bool ReadFeature(byte[] byData)
+        public bool ReadFeature(byte[] byData, byte reportId = 0)
         {
-            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(7, byData));
+            HidDeviceData.HID_RETURN hdrtn = device.SetFeature(new HidDeviceReport(reportId, byData));
 
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
@@ -183,7 +183,7 @@ namespace USB_HID_Test
 
         public bool WriteFeature(byte reportId, byte[] byData)
         {
-            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(7, byData));
+            HidDeviceData.HID_RETURN hdrtn = device.GetFeature(new HidDeviceReport(reportId, byData));
             if (hdrtn != HidDeviceData.HID_RETURN.SUCCESS)
             {
                 return false;
