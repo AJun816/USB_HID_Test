@@ -156,7 +156,6 @@ namespace USB_HID_Test
                 RaiseEventConnectedState(result.Result);
                 #endregion
 
-
                 return true;
             }
 
