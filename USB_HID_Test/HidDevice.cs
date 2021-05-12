@@ -254,7 +254,6 @@ namespace USB_HID_Test
                     if (!bConnected)
                     {
                         Connect(lowHidDevice);
-
                     }
                     Thread.Sleep(500);
                 }
