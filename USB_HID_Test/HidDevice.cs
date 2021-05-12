@@ -147,7 +147,6 @@ namespace USB_HID_Test
 
             if (hdrtn == HidDeviceData.HID_RETURN.SUCCESS)
             {
-
                 bConnected = true;
 
                 #region 消息通知
@@ -196,7 +195,7 @@ namespace USB_HID_Test
             return ReadFeature(data);
         }
 
-        public bool WriteFeatureData(byte reportId, byte[] data)
+        public bool WriteFeatureData( byte[] data,byte reportId=0)
         {
             return WriteFeature(reportId, data);
         }
@@ -219,7 +218,6 @@ namespace USB_HID_Test
             {
                 device.CloseDevice();
             }
-
         }
 
         public void HidDataReceived(object sender, HidDeviceReport e)
@@ -242,7 +240,6 @@ namespace USB_HID_Test
                 RaiseEventConnectedState(result.Result);
                 #endregion
             }
-
         }
 
         private void ReadWriteThread_DoWork(object sender, DoWorkEventArgs e)
