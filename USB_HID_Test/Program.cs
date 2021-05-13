@@ -8,7 +8,7 @@ namespace USB_HID_Test
         static void Main(string[] args)
         {
             HidDevice hidDevice = new HidDevice();
-                    
+            hidDevice.FoundOpen(0x0951, 0x16E4, "vid_0951&pid_16e4&mi_01&col05");
             hidDevice.isConnectedFunc = new HidDevice.isConnectedDelegate(state =>
             {
                 if (state)
@@ -18,7 +18,7 @@ namespace USB_HID_Test
                     
                     bool isSend = hidDevice.ReadFeatureData(bytes);
                     Thread.Sleep(10);
-                    bool isReceive = hidDevice.WriteFeatureData(7,bytes);
+                    bool isReceive = hidDevice.WriteFeatureData(bytes, 7);
                     Console.WriteLine($"发送结果：{isSend}\r\n接收结果：{isReceive}");
                 }
                 else
@@ -26,7 +26,7 @@ namespace USB_HID_Test
                     Console.WriteLine("连接失败");
                 }
             });
-            hidDevice.Initial(0x0951, 0x16E4, "vid_0951&pid_16e4&mi_01&col05");
+          
             Console.Read();
         }
     }

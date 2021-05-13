@@ -19,13 +19,23 @@ namespace USB_HID_Test
         private readonly FileStream hidDevice = null;
         private IntPtr hHubDevice;
 
-        int outputReportLength;//输出报告长度,包刮一个字节的报告ID
+        int outputReportLength;//输出报告长度,包括一个字节的报告ID
         public int OutputReportLength { get { return outputReportLength; } }
         int inputReportLength;//输入报告长度,包刮一个字节的报告ID   
         public int InputReportLength { get { return inputReportLength; } }
         short featureReportByteLength;
         public short FeatureReportByteLength { get { return featureReportByteLength; } }
         IntPtr device = IntPtr.Zero;
+
+        public delegate void DelegateDataReceived(object sender, HidDeviceReport e);
+        public DelegateDataReceived DataReceived;
+
+        /// <summary>
+        /// 事件:设备断开
+        /// </summary>
+        public delegate void DelegateStatusConnected(object sender, EventArgs e);
+        public DelegateStatusConnected DeviceRemoved;
+
 
         public enum DeviceMode
         {
@@ -76,6 +86,7 @@ namespace USB_HID_Test
             else 
                 return false;
         }
+
         /// <summary>
         /// 打开指定信息的设备
         /// </summary>
@@ -84,9 +95,7 @@ namespace USB_HID_Test
         /// <param name="serial">设备的serial</param>
         /// <returns></returns>
         public HidDeviceData.HID_RETURN OpenDevice(UInt16 vID, UInt16 pID, string serial)
-        {
-            
-
+        {            
             if (deviceOpened == false)
             {
                 //连接的HID列表
@@ -182,9 +191,6 @@ namespace USB_HID_Test
             }
         }
 
-        public delegate void DelegateDataReceived(object sender, HidDeviceReport e);       
-        public DelegateDataReceived DataReceived;
-
         /// <summary>
         /// 事件:数据到达,处理此事件以接收输入数据
         /// </summary>
@@ -193,11 +199,7 @@ namespace USB_HID_Test
             if (DataReceived != null) DataReceived(this, e);
         }
 
-        /// <summary>
-        /// 事件:设备断开
-        /// </summary>
-        public delegate void DelegateStatusConnected(object sender, EventArgs e);
-        public DelegateStatusConnected DeviceRemoved;
+    
         protected virtual void OnDeviceRemoved(EventArgs e)
         {
             if (DeviceRemoved != null) DeviceRemoved(this, e);
@@ -233,7 +235,6 @@ namespace USB_HID_Test
             }
             return HidDeviceData.HID_RETURN.WRITE_FAILD;
         }
-
 
         public HidDeviceData.HID_RETURN GetFeature(HidDeviceReport r)
         {

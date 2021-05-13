@@ -15,6 +15,8 @@ namespace USB_HID_Test
         internal const short OPEN_EXISTING = 3;
         internal const uint GENERIC_READ = 0x80000000;
         internal const uint GENERIC_WRITE = 0x40000000;
+
+
         #region Win32API
         /// <summary>
         /// HID D获取HID GUID例程返回HIDClass设备的设备接口GUID。
@@ -98,30 +100,8 @@ namespace USB_HID_Test
         /// <param name="PreparsedData">指向一个例程分配缓冲区的地址，该缓冲区包含一个集合的HIDP准备数据结构中的准备数据。</ param>
         /// <returns> HID D如果成功，则获得准备数据返回true;否则，它返回false</returns>
         [DllImport("hid.dll")]
-        static internal extern Boolean HidD_GetPreparsedData(IntPtr hidDeviceObject, out IntPtr PreparsedData);
-
-
-        [DllImport("hid.dll")]
-        static internal extern bool HidD_GetInputReport(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
-
-        [DllImport("hid.dll")]
-        static internal extern Boolean HidD_FreePreparsedData(IntPtr PreparsedData);
-
-
-        [DllImport("hid.dll")]
-        static internal extern int HidP_GetCaps(IntPtr preparsedData, ref HIDP_CAPS capabilities);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static internal extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess, int dwShareMode, ref SECURITY_ATTRIBUTES lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct SECURITY_ATTRIBUTES
-        {
-            public int nLength;
-            public IntPtr lpSecurityDescriptor;
-            public bool bInheritHandle;
-        }
-
+        static internal extern Boolean HidD_GetPreparsedData(IntPtr hidDeviceObject, out IntPtr PreparsedData);       
+        
         /// <summary>
         /// 此函数关闭开放对象句柄。
         /// </summary>
@@ -172,7 +152,26 @@ namespace USB_HID_Test
         [DllImport("user32.dll", SetLastError = true)]
         static internal extern bool UnregisterDeviceNotification(IntPtr handle);
 
+        [DllImport("hid.dll")]
+        static internal extern bool HidD_GetInputReport(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
+        [DllImport("hid.dll")]
+        static internal extern Boolean HidD_FreePreparsedData(IntPtr PreparsedData);
+
+        [DllImport("hid.dll")]
+        static internal extern int HidP_GetCaps(IntPtr preparsedData, ref HIDP_CAPS capabilities);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static internal extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess, int dwShareMode, ref SECURITY_ATTRIBUTES lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
+        #endregion
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public bool bInheritHandle;
+        }
 
         /// <summary>
         /// SP设备接口数据结构定义了设备信息集中的设备接口。
@@ -312,6 +311,6 @@ namespace USB_HID_Test
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 255)]
             public string dbcc_name;
         }
-        #endregion
+       
     }
 }
