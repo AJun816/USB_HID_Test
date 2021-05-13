@@ -10,27 +10,6 @@ namespace USB_HID_Test
 {
     public class HidDevice : IDisposable
     {
-
-        //推送连接状态信息
-        public delegate void isConnectedDelegate(bool isConnected);
-        public isConnectedDelegate isConnectedFunc;
-
-        //推送接收数据信息
-        public delegate void PushReceiveDataDele(byte[] datas);
-        public PushReceiveDataDele pushReceiveData;
-
-        public delegate void DelegateDataReceived(object sender, byte[] data);
-        public DelegateDataReceived DataReceived;
-
-        public delegate void DelegateStatusConnected(object sender, bool isConnect);
-        public DelegateStatusConnected StatusConnected;
-      
-        public HidDeviceBase device = new HidDeviceBase();
-        private static HidDevice m_oInstance;
-
-        Boolean ContinueConnectFlag = true;
-        private readonly BackgroundWorker ReadWriteThread = new BackgroundWorker();
-
         public struct TagInfo
         {
             public string AntennaPort;
@@ -61,11 +40,32 @@ namespace USB_HID_Test
             public bool curStatus;
         }
 
+
+        //推送连接状态信息
+        public delegate void isConnectedDelegate(bool isConnected);
+        public isConnectedDelegate isConnectedFunc;
+
+        //推送接收数据信息
+        public delegate void PushReceiveDataDele(byte[] datas);
+        public PushReceiveDataDele pushReceiveData;
+
+        public delegate void DelegateDataReceived(object sender, byte[] data);
+        public DelegateDataReceived DataReceived;
+
+        public delegate void DelegateStatusConnected(object sender, bool isConnect);
+        public DelegateStatusConnected StatusConnected;
+      
+        public HidDeviceBase device = new HidDeviceBase();
+        private static HidDevice m_oInstance;
+
+        Boolean ContinueConnectFlag = true;
+        private readonly BackgroundWorker ReadWriteThread = new BackgroundWorker();
+
+  
+
         public bool bConnected = false;
         ConnectStatusStruct connectStatus = new ConnectStatusStruct();
         HidDeviceInfo lowHidDevice = new HidDeviceInfo();
-
-
 
         public HidDevice()
         {
