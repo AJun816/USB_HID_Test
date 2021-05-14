@@ -31,6 +31,9 @@ namespace USB_HID_Test
         [DllImport("hid.dll", SetLastError = true)]
         static internal extern bool HidD_GetFeature(IntPtr hidDeviceObject, byte[] lpReportBuffer, int reportBufferLength);
 
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        static internal extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
+
         /// <summary>
         /// 设置DI GET类DEVS功能返回给包含本地计算机所请求的设备信息元素的设备信息集的句柄。 
         /// </summary>

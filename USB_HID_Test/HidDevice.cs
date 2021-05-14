@@ -73,6 +73,14 @@ namespace USB_HID_Test
             device.DataReceived = HidDataReceived;
             device.DeviceRemoved = HidDeviceRemoved;
         }
+        #region 重构Device连接
+        internal HidDevice(string devicePath, string description = null)
+        {
+
+        }
+        #endregion
+
+
 
         protected virtual void RaiseEventConnectedState(bool isConnect)
         {
